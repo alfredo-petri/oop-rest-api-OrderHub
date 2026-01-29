@@ -5,6 +5,8 @@ import { errorHandler } from './middlewares/error-handler'
 import { routes } from './routes'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './configs/swagger'
 
 dotenv.config()
 
@@ -15,6 +17,9 @@ app.use(cors())
 app.use(helmet())
 
 app.use(express.json())
+
+// Documentação Swagger
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.use(routes)
 

@@ -1,5 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc'
 import { env } from '../utils/env'
+import { swaggerSchemas } from '../docs/swagger'
 
 // Configuração das opções do Swagger
 const swaggerOptions: swaggerJsdoc.Options = {
@@ -28,6 +29,8 @@ const swaggerOptions: swaggerJsdoc.Options = {
       },
     ],
     components: {
+      // Mescla os securitySchemes e tags com os schemas
+      ...swaggerSchemas.components,
       securitySchemes: {
         bearerAuth: {
           type: 'http',
