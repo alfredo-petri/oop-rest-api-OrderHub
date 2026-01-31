@@ -73,6 +73,59 @@ deliveriesRoutes.post('/', deliveriesController.create)
 
 deliveriesRoutes.use(verifyUserAuthorization(['sale']))
 
+/**
+ * @swagger
+ * /deliveries:
+ *   get:
+ *     summary: Listar todas as entregas
+ *     description: |
+ *       Retorna a lista de todas as entregas com detalhes (usuário, logs). Requer autenticação
+ *       via token JWT e permissão de usuário com role **sale** (vendedor).
+ *
+ *       **Autenticação:** Bearer token obrigatório.
+ *       **Autorização:** Apenas usuários com role "sale".
+ *     tags: [Deliveries]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de entregas retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DeliveriesListResponse'
+ *             example:
+ *               deliveries:
+ *                 - id: "123e4567-e89b-12d3-a456-426614174000"
+ *                   userId: "123e4567-e89b-12d3-a456-426614174001"
+ *                   description: "Entrega de produtos eletrônicos"
+ *                   status: "acepted"
+ *                   createdAt: "2024-01-15T10:30:00.000Z"
+ *                   updatedAt: null
+ *                   user:
+ *                     name: "João Silva"
+ *                     email: "joao@example.com"
+ *                   logs: []
+ *       401:
+ *         description: Não autenticado ou não autorizado (requer role "sale").
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppError'
+ *             examples:
+ *               tokenRequired:
+ *                 summary: Token não informado
+ *                 value:
+ *                   message: "token is required"
+ *               invalidToken:
+ *                 summary: Token inválido ou expirado
+ *                 value:
+ *                   message: "invalid token, unauthorized"
+ *               unauthorized:
+ *                 summary: Usuário sem permissão (role diferente de "sale")
+ *                 value:
+ *                   message: "unauthorized"
+ */
 // only sale user
 deliveriesRoutes.get('/', deliveriesController.get)
 deliveriesRoutes.patch('/status', deliveriesStatusController.updateStatus)
