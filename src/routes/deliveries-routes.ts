@@ -128,5 +128,87 @@ deliveriesRoutes.use(verifyUserAuthorization(['sale']))
  */
 // only sale user
 deliveriesRoutes.get('/', deliveriesController.get)
+
+/**
+ * @swagger
+ * /deliveries/status:
+ *   patch:
+ *     summary: Atualizar status de uma entrega
+ *     description: |
+ *       Atualiza o status de uma entrega existente e registra um log automático da alteração.
+ *       Requer autenticação via token JWT e permissão de usuário com role **sale** (vendedor).
+ *
+ *       **Status válidos:** acepted | production | shipped | delivered
+ *
+ *       **Autenticação:** Bearer token obrigatório.
+ *       **Autorização:** Apenas usuários com role "sale".
+ *     tags: [Deliveries]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateDeliveryStatusRequest'
+ *           examples:
+ *             updateStatus:
+ *               summary: Atualizar status da entrega
+ *               value:
+ *                 id: "123e4567-e89b-12d3-a456-426614174000"
+ *                 status: "shipped"
+ *     responses:
+ *       200:
+ *         description: Status da entrega atualizado com sucesso (corpo vazio).
+ *         content:
+ *           application/json: {}
+ *       400:
+ *         description: Erro de validação (id ou status inválidos).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *             example:
+ *               message: "validation error:"
+ *               issues:
+ *                 - field: "status"
+ *                   message: "status must be acepted or production or shipped or delivered"
+ *                   code: "invalid_enum_value"
+ *       401:
+ *         description: Não autenticado ou não autorizado (requer role "sale").
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppError'
+ *             examples:
+ *               tokenRequired:
+ *                 summary: Token não informado
+ *                 value:
+ *                   message: "token is required"
+ *               invalidToken:
+ *                 summary: Token inválido ou expirado
+ *                 value:
+ *                   message: "invalid token, unauthorized"
+ *               unauthorized:
+ *                 summary: Usuário sem permissão (role diferente de "sale")
+ *                 value:
+ *                   message: "unauthorized"
+ *       404:
+ *         description: Entrega não encontrada com o id informado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppError'
+ *             example:
+ *               message: "delivery with the provided identifier not founded"
+ *       422:
+ *         description: Status inválido ou regra de negócio não atendida.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppError'
+ *             example:
+ *               message: "Invalid status or business rule violation"
+ */
 deliveriesRoutes.patch('/status', deliveriesStatusController.updateStatus)
 export { deliveriesRoutes }
