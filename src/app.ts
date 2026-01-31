@@ -18,8 +18,18 @@ app.use(helmet())
 
 app.use(express.json())
 
-// Documentação Swagger
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+// Documentação Swagger (sem cache para tunnel/local sempre ver a spec atual)
+app.use(
+  '/',
+  (_req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    res.set('Pragma', 'no-cache')
+    res.set('Expires', '0')
+    next()
+  },
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec),
+)
 
 app.use(routes)
 

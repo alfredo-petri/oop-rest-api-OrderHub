@@ -1,3 +1,4 @@
+import path from 'path'
 import swaggerJsdoc from 'swagger-jsdoc'
 import { env } from '../utils/env'
 import { swaggerSchemas } from '../docs/swagger'
@@ -59,12 +60,24 @@ const swaggerOptions: swaggerJsdoc.Options = {
       },
     ],
   },
-  // Caminhos onde o swagger-jsdoc vai procurar por comentários JSDoc
-  apis: [
-    './src/routes/*.ts', // Busca em todos os arquivos de rotas
-    './src/app.ts', // Caso você adicione documentação no app.ts
-  ],
+  // Preenchido abaixo por getApisPaths() para não depender de process.cwd()
+  apis: [],
 }
+
+// Resolve apis a partir do diretório deste arquivo: em build/ usa ../../src/routes; em src/ usa ../routes.
+// Assim a spec não depende de process.cwd() (ex.: servidor do tunnel com cwd diferente).
+function getApisPaths(): string[] {
+  const dir = typeof __dirname !== 'undefined' ? __dirname : process.cwd() + path.sep + 'src' + path.sep + 'configs'
+  const isBuild = dir.includes(path.sep + 'build' + path.sep)
+  const routesDir = isBuild ? path.join(dir, '..', '..', 'src', 'routes') : path.join(dir, '..', 'routes')
+  const appPath = isBuild ? path.join(dir, '..', '..', 'src', 'app.ts') : path.join(dir, '..', 'app.ts')
+  return [
+    path.join(routesDir, '*.ts'),
+    path.join(routesDir, 'delivery-logs-routes.ts'),
+    appPath,
+  ]
+}
+;(swaggerOptions as { apis: string[] }).apis = getApisPaths()
 
 // Gera a especificação Swagger a partir dos comentários JSDoc
 export const swaggerSpec = swaggerJsdoc(swaggerOptions)
